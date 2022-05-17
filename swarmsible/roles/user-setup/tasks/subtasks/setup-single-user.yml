@@ -1,0 +1,37 @@
+---
+# inspired by https://medium.com/sallesslice-com/visudo-with-ansible-746f83547bb3
+- name: user setup
+  become: yes
+  remote_user: root
+  block:
+    - name: "create user {{ user.name }}"
+      user:
+        name: "{{ user.name }}"
+        append: yes
+        shell: /bin/bash
+        system: "{{ user.system | default('False') | bool }}"
+        groups:
+          - "{{ user.group }}"
+        create_home: yes
+    
+    - name: "add user {{ user.name }} to sudoers"
+      user:
+        name: "{{ user.name }}"
+        append: yes
+        groups:
+          - "sudo"
+      when: user.is_sudo == True
+
+    - name: "add public key for user {{ user.name }}"
+      when: user.ssh_key is defined
+      authorized_key:
+        user: "{{ user.group }}"
+        state: present
+        key: "{{ lookup('file', '{{ user.ssh_key }}.pub') }}"
+
+    - name: "set up bashrc for user {{ user.name }}"
+      copy:
+        src: .bashrc
+        dest: "/home/{{ user.name }}/.bashrc"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"

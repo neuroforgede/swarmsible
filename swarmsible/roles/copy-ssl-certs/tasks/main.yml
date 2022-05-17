@@ -1,0 +1,56 @@
+---
+- name: "ensure /data/ansible exists"
+  file:
+    path: /data/ansible
+    state: directory
+
+- name: "ensure /data/ansible/certs exists"
+  file:
+    path: /data/ansible/certs
+    state: directory
+
+- name: "copy ssl certs to {{ item.directory }}"
+  copy:
+    src: "{{ssl_certs_base_dir}}/{{ item.directory }}"
+    dest: "/data/ansible/certs"
+    mode: 0700
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  when: not item.use_ids | default('False') | bool
+  with_items: "{{ ssl_cert_dirs }}"
+
+- name: "copy ssl certs to {{ item.directory }}"
+  copy:
+    src: "{{ssl_certs_base_dir}}/{{ item.directory }}"
+    dest: "/data/ansible/certs"
+    mode: 0700
+    owner: "{{ item.uid }}"
+    group: "{{ item.gid }}"
+  when: item.use_ids | default('False') | bool
+  with_items: "{{ ssl_cert_dirs }}"
+
+- name: "Ensure /data/ansible/certs/{{ item.directory }} is 0700"
+  command: 
+    cmd: chmod 700 /data/ansible/certs/{{ item.directory }}
+    warn: False
+  with_items: "{{ ssl_cert_dirs }}"
+
+- name: "Ensure files in /data/ansible/certs/{{ item.directory }} 0400"
+  command:
+    cmd: find /data/ansible/certs/{{ item.directory }} -type f -exec chmod 0400 {} \;
+    warn: False
+  with_items: "{{ ssl_cert_dirs }}"
+
+- name: "Ensure /data/ansible/certs/{{ item.directory }} belongs to the right user"
+  command:
+    cmd: "chown -R {{ item.uid }}:{{ item.gid }} /data/ansible/certs/{{ item.directory }}"
+    warn: False
+  when: item.use_ids | default('False') | bool
+  with_items: "{{ ssl_cert_dirs }}"
+
+- name: "Ensure /data/ansible/certs/{{ item.directory }} belongs to the right user"
+  command:
+    cmd: "chown -R {{ item.owner }}:{{ item.group }} /data/ansible/certs/{{ item.directory }}"
+    warn: False
+  when: not item.use_ids | default('False') | bool
+  with_items: "{{ ssl_cert_dirs }}"

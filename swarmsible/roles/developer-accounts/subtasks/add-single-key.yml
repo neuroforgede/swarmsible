@@ -1,0 +1,14 @@
+---
+- name: Check if {{ user }} has only one public key
+  become: false
+  local_action:
+    module: stat
+    path: "{{ project_base_dir | default(playbook_dir) }}/files/all/ssh_files/developer_ssh_keys/{{ user }}.pub"
+  register: single_key
+
+- name: Add single key for {{ user }}
+  authorized_key:
+    user: "{{ user }}"
+    state: present
+    key: "{{ lookup('file', '{{ project_base_dir | default(playbook_dir) }}/files/all/ssh_files/developer_ssh_keys/{{ user }}.pub') }}"
+  when: single_key.stat.exists

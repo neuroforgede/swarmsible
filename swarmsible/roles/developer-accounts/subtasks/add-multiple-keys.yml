@@ -1,0 +1,10 @@
+---
+- name: "Add public keys for {{ user }}"
+  authorized_key:
+    user: "{{ user }}"
+    state: present
+    key: "{{ lookup('file', '{{ key }}') }}"
+  with_fileglob:
+    - "{{ playbook_dir }}/files/all/ssh_files/developer_ssh_keys/{{ user }}/*.pub"
+  loop_control:
+    loop_var: key

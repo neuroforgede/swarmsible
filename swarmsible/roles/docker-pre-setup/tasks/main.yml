@@ -1,0 +1,36 @@
+---
+
+- name: "pin docker version to {{ docker_pinned_package }}"
+  template:
+    src: "apt-preference-docker.j2"
+    dest: "/etc/apt/preferences.d/docker"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: "pin docker cli version to {{ docker_pinned_package }}"
+  template:
+    src: "apt-preference-docker-cli.j2"
+    dest: "/etc/apt/preferences.d/docker-cli"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: "pin containerd.io version to {{ containerd_pinned_package }}"
+  template:
+    src: "apt-preference-containerd.j2"
+    dest: "/etc/apt/preferences.d/containerd"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: "Pin {{ item }} version"
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  with_items:
+    - containerd.io
+    - docker-ce-cli
+    - docker-ce
+    - docker-ce-rootless-extras
+    - docker-scan-plugin

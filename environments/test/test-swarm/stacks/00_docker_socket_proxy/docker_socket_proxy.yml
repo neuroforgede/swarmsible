@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  docker_socket_proxy:
+    image: tecnativa/docker-socket-proxy
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      docker_socket_proxy:
+        aliases:
+          - docker.socket.proxy.local
+
+    environment:
+      CONTAINERS: 1
+      SERVICES: 1
+      SWARM: 1
+      NODES: 1
+      NETWORKS: 1
+      TASKS: 1
+      VERSION: 1
+
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        order: stop-first
+        parallelism: 1
+      rollback_config:
+        order: stop-first
+        parallelism: 1
+      restart_policy:
+        condition: on-failure
+
+      placement:
+        preferences:
+          - spread: node.labels.host
+        # so that the replacement can come up at all
+        max_replicas_per_node: 1
+        constraints:
+          - node.role==manager
+      
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+networks:
+  docker_socket_proxy:
+    driver: overlay
+    attachable: true
+    name: docker_socket_proxy
+    driver_opts:
+      encrypted: ""

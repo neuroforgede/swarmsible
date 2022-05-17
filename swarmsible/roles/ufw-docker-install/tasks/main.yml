@@ -1,0 +1,32 @@
+- name: Copy ufw-docker from neuroforgede repo
+  copy:
+    src: ufw-docker
+    dest: /usr/local/bin/ufw-docker
+
+- name: ensure permissions on ufw-docker to 751
+  file:
+    path: /usr/local/bin/ufw-docker
+    owner: root
+    group: root
+    mode: '0751'
+
+- name: run ufw-docker install
+  args:
+    executable: /bin/bash
+  shell: |
+      check_result () {
+        ___RESULT=$?
+        if [ $___RESULT -ne 0 ]; then
+            echo $1
+            exit 1
+        fi
+      }
+      ufw-docker install
+      check_result "failed to run 'ufw-docker install'"
+
+- name: restart ufw
+  service:
+    name: ufw
+    state: restarted
+
+

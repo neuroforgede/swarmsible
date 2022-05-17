@@ -1,0 +1,4 @@
+---
+
+ssl_certs_base_dir: "{{playbook_dir}}/files/certs/{{inventory_hostname}}"
+ssl_cert_dirs: []

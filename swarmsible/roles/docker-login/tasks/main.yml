@@ -1,0 +1,13 @@
+---
+- name: python - Install docker package
+  pip:
+    name: docker
+
+- name: "Login to private registry at {{ item.registry }} and force re-authorization"
+  docker_login:
+    registry: "{{ item.registry }}"
+    username: "{{ item.user }}"
+    password: "{{ item.passwd }}"
+    reauthorize: yes
+  no_log: True
+  with_items: "{{ docker_registry_client_credentials | default([]) }}"

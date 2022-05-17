@@ -1,0 +1,7 @@
+---
+- name: set up bashrc for root
+  copy:
+    src: .bashrc
+    dest: /root/.bashrc
+    owner: root
+    group: root

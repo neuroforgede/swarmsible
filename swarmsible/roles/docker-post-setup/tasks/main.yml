@@ -1,0 +1,29 @@
+---
+
+- name: "ensure /data/ansible exists"
+  file:
+    path: /data/ansible
+    state: directory
+
+- name: "ensure /data/ansible/state exists"
+  file:
+    path: /data/ansible/state
+    state: directory
+
+- name: "ensure /data/ansible/state/docker exists"
+  file:
+    path: /data/ansible/state/docker
+    state: directory
+
+- name: "ensure /data/ansible/state/docker/changes exists"
+  file:
+    path: /data/ansible/state/docker/changes
+    state: directory
+
+- name: Install pip docker package
+  pip:
+    name: docker
+
+- include: subtasks/2019_03_15.yml
+- include: subtasks/2020_07_17.yml
+- include: subtasks/2021_03_04.yml

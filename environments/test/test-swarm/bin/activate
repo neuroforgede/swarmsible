@@ -1,0 +1,10 @@
+export DOCKER_HOST=ssh://<user>@ip1
+ORIG_PS1="$PS1"
+
+PS1="[docker@ssh://<user>@ip1]$PS1"
+
+function deactivate () {
+    unset DOCKER_HOST
+    unset deactivate
+    PS1="$ORIG_PS1"
+}

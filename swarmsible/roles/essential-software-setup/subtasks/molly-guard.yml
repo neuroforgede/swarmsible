@@ -1,0 +1,14 @@
+---
+- name: Install molly-guard
+  apt: 
+    name: molly-guard
+    state: present
+    update_cache: "{{ apt_update_cache | default('True') }}"
+  become: yes
+
+- name: Enable molly-guard for screen/ssh-sessions
+  lineinfile: 
+    dest: /etc/molly-guard/rc 
+    regexp: '^#ALWAYS_QUERY_HOSTNAME=true' 
+    line: 'ALWAYS_QUERY_HOSTNAME=true'
+  become: yes

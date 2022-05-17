@@ -1,0 +1,58 @@
+---
+- name: "create group developer"
+  group:
+    name: "developer"
+    state: present
+
+- name: "remove deleted users"
+  user:
+    name: "{{ item.name }}"
+    state: absent
+    remove: yes
+  with_items: "{{ ssh_deleted_developer_accounts | default([]) }}"
+
+- name: "make sure all necessary groups exist"
+  group:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ ssh_developer_accounts | default([]) | selectattr('groups', 'defined') | map(attribute='groups') | flatten | unique }}"
+
+- name: "make sure user exists"
+  user:
+    name: "{{ item.name }}"
+    append: yes
+    groups: "{{ (item.groups | default([])) + ['developer'] }}"
+    create_home: yes
+    shell: /bin/bash
+  with_items: "{{ ssh_developer_accounts | default([]) }}"
+
+- name: Add key for users with a single key
+  include: subtasks/add-single-key.yml user="{{ item.name }}"
+  with_items:
+    - "{{ ssh_developer_accounts | default([]) }}"
+
+- name: Add keys for users with additional keys
+  include: subtasks/add-additional-keys.yml user="{{ item.name }}" additional_keys="{{ item.additional_keys }}"
+  with_items:
+    - "{{ ssh_developer_accounts | default([]) }}"
+
+- name: Check if user has directory for multiple keys [directory]
+  become: false
+  local_action:
+    module: stat
+    path: "{{ project_base_dir | default(playbook_dir) }}/files/all/ssh_files/developer_ssh_keys/{{ item.name }}/"
+  with_items:
+   - "{{ ssh_developer_accounts | default([]) }}"
+  register: multiple_keys
+
+- name: Build a list of users with multiple keys [directory]
+  set_fact:
+    users_with_directory: "{{ users_with_directory | default([]) }} + [ '{{ item.item.name }}' ]"
+  with_items: "{{ multiple_keys.results }}"
+  when: item.stat.exists
+  no_log: true
+
+- name: Add keys for users with multiple keys [directory]
+  include: subtasks/add-multiple-keys.yml user="{{ item }}"
+  with_items:
+    - "{{ users_with_directory | default([]) }}"

@@ -1,0 +1,46 @@
+---
+- name: set up root
+  include: subtasks/root-setup.yml
+
+- name: set group info for ansible group into a dict
+  set_fact:
+    ansible_group_info:
+      name: "{{ global_ansible_group | default('ansible') }}"
+      requires_root_password: False
+
+- name: construct list of all group infos
+  set_fact:
+    all_group_infos: "{{ setup_additional_groups | default([]) }} + [ {{ ansible_group_info }} ]"
+
+- name: set up groups
+  include: subtasks/setup-single-group.yml group="{{ item }}"
+  with_items: "{{ all_group_infos }}"
+
+- name: allow relevant groups to become super user without password
+  template:
+    src: sudoers.j2
+    dest: /etc/sudoers.d/sudoers
+    mode: 0440
+    validate: '/usr/sbin/visudo -cf %s'
+
+- name: set user information for the ansible user into a dict
+  set_fact:
+    ansible_user_info:
+      name: "{{ global_ansible_user | default('ansible') }}"
+      group: "{{ global_ansible_group | default('ansible') }}"
+      ssh_key: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
+      # ansible user has a separate group that allows sudo access
+      is_sudo: False
+
+- name: construct list of all user infos
+  set_fact:
+    all_user_infos: "{{ setup_additional_users | default([]) }} + [ {{ ansible_user_info }} ]"
+
+- name: set up users
+  include: subtasks/setup-single-user.yml user="{{ item }}"
+  with_items: "{{ all_user_infos }}"
+
+# now that we definitely have a way back in (including root), we can disable root
+# SSH login for all ips (except the management nodes)
+- name: ssh config
+  include: subtasks/sshd-config.yml

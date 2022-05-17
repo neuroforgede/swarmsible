@@ -1,0 +1,32 @@
+---
+- hosts: docker_swarm
+  become: true
+  vars:
+    ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
+    ansible_user: "{{ global_ansible_user | default('ansible') }}"
+  tasks:
+    - name: "ensure /mnt-alias exists"
+      file:
+        path: "/mnt-alias"
+        state: "directory"
+        owner: root
+        group: root
+        mode: '700'
+    - name: "create symlink for cloud volume"
+      file:
+        src: "/mnt/{{ item.value }}/"
+        dest: "/mnt-alias/{{ item.key }}"
+        owner: root
+        group: root
+        state: link
+      with_dict: "{{ docker_cloud_volume_aliases | default({}) }}"
+    - name: "ensure {{ item.path }} exists"
+      file:
+        path: "{{ item.path | default(omit) }}"
+        state: "{{ item.state | default('directory') }}"
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('700') }}"
+      with_items: "{{ docker_volumes | default([]) }}"
+
+

@@ -1,0 +1,9 @@
+---
+
+- name: "set {{ item.key }}={{ item.value }}"
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.conf
+    reload: yes
+  with_items: "{{ docker_sysctl_settings | default([]) }}"

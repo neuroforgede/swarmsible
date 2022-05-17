@@ -1,0 +1,38 @@
+version: '3.8'
+
+
+services:
+  docker_volume_hetzner:
+    image: docker
+    command: sh -c "(docker plugin inspect hetzner-volume || (echo \"install hetzner-volume\" && docker plugin install --alias hetzner-volume costela/docker-volume-hetzner:0.1.5 --grant-all-permissions && echo \"installed\" && docker plugin disable hetzner-volume && echo \"disabled hetzner-volume\" && docker plugin set hetzner-volume apikey=$$(cat /run/secrets/hetzner_api_key) && echo \"set up apikey\" && docker plugin enable hetzner-volume && echo \"enabled hetzner-volume again\")) && echo \"done\""
+    networks:
+      - bridge
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    
+    deploy:
+      mode: global
+      restart_policy:
+        condition: "none"
+      placement:
+        constraints:
+          - node.labels.hetzner_volume == 1
+
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+    secrets:
+      - source: hetzner_api_key
+        target: hetzner_api_key
+        mode: 0400
+
+secrets:
+  hetzner_api_key:
+    file: ./secrets/hetzner_api_key
+
+networks:
+  bridge:
+    external: true
+    name: bridge

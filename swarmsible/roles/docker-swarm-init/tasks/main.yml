@@ -1,0 +1,71 @@
+---
+- name: "run docker swarm init"
+  when: inventory_hostname == docker_swarm_main_manager
+  block:
+  - name: Check if Swarm has already been Initialized
+    shell: docker node ls
+    register: swarm_status
+    ignore_errors: true
+
+  - set_fact:
+      __docker_swarm_ingress_network_opt: ""
+    when: not (docker_swarm_ingress_network_encrypt | default('True') | bool)
+
+  - set_fact:
+      __docker_swarm_ingress_network_opt: "--opt encrypted"
+    when: docker_swarm_ingress_network_encrypt | default('True') | bool
+
+  - name: Initialize Docker Swarm
+    shell: |
+      docker swarm init \
+      --advertise-addr={{ hostvars[inventory_hostname]['docker_swarm_advertise_addr'] | default(hostvars[inventory_hostname]['host_ip']) }} \
+      --default-addr-pool "{{ docker_swarm_default_ip_addr_pool | default('10.0.0.0/8') }}" \
+      --default-addr-pool-mask-length "{{ docker_swarm_default_ip_addr_pool_mask_length | default('24') }}"
+    when: swarm_status.rc != 0
+
+  - name: remove default ingress network
+    shell: >
+          yes | docker network rm ingress
+    when: swarm_status.rc != 0
+
+  - name: create encrypted ingress network
+    args:
+      executable: /bin/bash
+    shell: |
+      function retry {
+        local n=1
+        local max=10
+        local delay=5
+        while true; do
+          "$@" && break || {
+            if [[ $n -lt $max ]]; then
+              ((n++))
+              echo "Command failed. Attempt $n/$max..."
+              sleep $delay;
+            else
+              echo "The command has failed after $n attempts."
+              return 1
+            fi
+          }
+        done
+      }
+
+      check_result () {
+          ___RESULT=$?
+          if [ $___RESULT -ne 0 ]; then
+              echo $1
+              exit 1
+          fi
+      }
+      
+      retry docker network create --driver overlay --ingress {{ __docker_swarm_ingress_network_opt }} {{ docker_swarm_ingress_network_name }} --subnet={{ docker_swarm_ingress_subnet }}
+      check_result "failed to create docker ingress network {{ docker_swarm_ingress_network_name }}"
+    when: swarm_status.rc != 0
+
+  - name: Get the Manager join-token
+    shell: docker swarm join-token --quiet manager
+    register: manager_token
+
+  - name: Get the worker join-token
+    shell: docker swarm join-token --quiet worker
+    register: worker_token

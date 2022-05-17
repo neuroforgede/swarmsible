@@ -1,0 +1,12 @@
+---
+- name: Add additional keys for {{ user }}
+  authorized_key:
+    user: "{{ user }}"
+    state: present
+    key: "{{ lookup('file', '{{ playbook_dir }}/files/all/ssh_files/developer_ssh_keys/{{ key }}.pub') }}"
+  loop_control:
+    loop_var: key
+  with_items:
+    - "{{ additional_keys }}"
+  when:
+    - key is defined

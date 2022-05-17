@@ -1,0 +1,92 @@
+---
+# careful: this is executed on the management node as well, so this should
+# really only include _essential_ software
+
+- name: Install essential packages (ubuntu == 18)
+  apt:
+    name: "{{ packages }}"
+    update_cache: "{{ apt_update_cache | default('True') }}"
+  vars:
+    packages:
+    - python-setuptools
+    - python-pip
+    - python-passlib
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_major_version == '18'
+
+- name: Install essential packages
+  apt:
+    name: "{{ packages }}"
+    update_cache: "{{ apt_update_cache | default('True') }}"
+  vars:
+    packages:
+    - vim
+    - ufw
+    - sudo
+    - python3-setuptools
+    - python3-pip
+    - python3-passlib
+    - python3.8-venv
+    - git
+    - acl
+    
+- name: configure and enable ufw
+  remote_user: root
+  become: true
+  block:
+    - name: Allow ssh connections via ipv4
+      ufw:
+        rule: allow
+        proto: tcp
+        to: 0.0.0.0/0
+        port: "22"
+      when: not (ssh_only_management_nodes | default('False') | bool)
+        
+    - name: Allow ssh ipv6 connections via loopback
+      ufw:
+        rule: allow
+        proto: tcp
+        from: ::1
+        to: ::1
+        port: "22"
+
+    - name: Allow ssh ipv6 connections to ipv6 floating ip if configured
+      ufw:
+        rule: allow
+        proto: tcp
+        to: "{{ floating_ipv6 }}"
+        port: "22"
+      when: floating_ipv6 is defined
+
+    - name: Allow connections to SSH from management node ips
+      ufw:
+        rule: allow
+        from_ip: "{{ item }}"
+        to_ip: 0.0.0.0/0
+        to_port: "22"
+        proto: tcp
+        comment: "allow management node"
+      with_items: "{{ management_node_ips | default([]) }}"
+      when: ssh_only_management_nodes | default('False') | bool
+
+    - name: "delete port 22 allow all rules for ipv4 if they exist"
+      ufw:
+        delete: yes
+        rule: allow
+        proto: tcp
+        to: 0.0.0.0/0
+        port: 22
+      when: ssh_only_management_nodes | default('False') | bool
+
+    - name: Enable ufw
+      ufw:
+        state: enabled
+
+- name: molly guard
+  include_tasks: subtasks/molly-guard.yml
+
+- set_fact:
+    setup_disable_ipv6_val: "{{ setup_disable_ipv6 | default('False') }}"
+
+- name: Disable ipv6
+  raw: echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
+  when: setup_disable_ipv6_val|bool

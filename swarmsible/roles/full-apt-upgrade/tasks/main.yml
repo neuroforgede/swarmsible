@@ -1,0 +1,27 @@
+---
+#(occured during testing, manual apt update fixed this)
+- name: "manual apt update to fix problems with permissions"
+  raw: apt update -y
+
+- name: apt update
+  apt:
+    update_cache: "{{ apt_update_cache | default('True') }}"
+
+- name: apt dist-upgrade
+  apt:
+    upgrade: dist
+  register: dist_upgraded
+
+- name: Remove useless packages from the apt cache
+  apt:
+    autoclean: yes
+
+- name: Remove dependencies that are no longer required
+  apt:
+    autoremove: yes
+
+- name: Restart after dist upgrade.
+  reboot:
+    connect_timeout: 30
+    reboot_timeout: 300
+  when: (apt_restart_after_dist_upgrade == True and dist_upgraded.changed)

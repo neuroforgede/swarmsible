@@ -1,0 +1,74 @@
+---
+- hosts: all
+  vars:
+    ansible_ssh_private_key_file: "{{ ansible_initial_ssh_private_key_file | default(playbook_dir + '/ssh_keys/root_rsa') }}"
+    ansible_user: "{{ ansible_initial_user | default('root') }}" 
+  gather_facts: False
+  become: True
+  tasks:
+    # ansible only requires only a minimal installation of python 2.x on the managed machines
+    - name: "ansible required: install python"
+      raw: apt update -y && apt install python3-minimal -y && apt install python3-simplejson -y
+
+- hosts: all
+  vars:
+    ansible_ssh_private_key_file: "{{ ansible_initial_ssh_private_key_file | default(playbook_dir + '/ssh_keys/root_rsa') }}"
+    ansible_user: "{{ ansible_initial_user | default('root') }}" 
+  become: True
+  tasks:
+    - name: Ensure the en_US locale exists
+      locale_gen:
+        name: en_US.UTF-8
+        state: present
+    - name: set en_US as default locale
+      command: update-locale set-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+
+- hosts: all
+  vars:
+    ansible_ssh_private_key_file: "{{ ansible_initial_ssh_private_key_file | default(playbook_dir + '/ssh_keys/root_rsa') }}"
+    ansible_user: "{{ ansible_initial_user | default('root') }}" 
+    
+    apt_update_cache: True
+    apt_restart_after_dist_upgrade: True
+  become: True
+  roles:
+    - role: full-apt-upgrade
+    - role: essential-software-setup
+    - role: user-setup
+
+- hosts: all
+  vars:
+    ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
+    ansible_user: "{{ global_ansible_user | default('ansible') }}"
+    
+    apt_update_cache: True
+    apt_restart_after_dist_upgrade: True
+  become: True
+  roles:
+    - role: notnagel-user
+
+
+- hosts: ansiblemanager
+  vars:
+    ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
+    ansible_user: "{{ global_ansible_user | default('ansible') }}"
+    
+    apt_update_cache: True
+    apt_restart_after_dist_upgrade: True
+  become: True
+  roles:
+    - docker-sysctl-tune
+    - docker-pre-setup
+    - geerlingguy.docker
+
+- hosts: all
+  vars:
+    ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
+    ansible_user: "{{ global_ansible_user | default('ansible') }}"
+    
+    apt_update_cache: True
+    apt_restart_after_dist_upgrade: True
+  become: True
+  roles:
+    - role: developer-accounts
+

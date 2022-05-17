@@ -1,0 +1,36 @@
+project_base_dir: "{{ playbook_dir }}/../environments/test/test-swarm"
+ansible_initial_user: "root"
+ansible_initial_ssh_private_key_file: "{{ playbook_dir }}/../environments/test/ssh_keys/root_rsa"
+
+ansible_ssh_private_key_file: "{{ playbook_dir }}/../environments/test/ssh_keys/ansible_rsa"
+global_ansible_ssh_private_key_file: "{{ playbook_dir }}/../environments/test/ssh_keys/ansible_rsa"
+
+docker_pinned_package: '*'
+containerd_pinned_package: '*'
+
+docker_swarm_main_manager: test-swarm-test-01
+docker_swarm_ingress_subnet: "10.0.0.1/16"
+docker_swarm_ingress_network_name: "ingress"
+
+docker_registry_client_credentials: []
+#- user: ""
+#  passwd: ""
+#  registry: ""
+
+
+# for redis you might want to set this:
+docker_sysctl_settings: 
+  - key: vm.overcommit_memory
+    value: '1'
+
+# we have things in a private network anyways
+docker_swarm_ingress_network_encrypt: True
+docker_swarm_traefik_ingress_network_encrypt: True
+
+docker_swarm_default_ip_addr_pool: "10.0.0.0/8"
+docker_swarm_default_ip_addr_pool_mask_length: "24"
+
+ssh_developer_accounts:
+# - name: "user"
+#   groups:
+#     - "docker"

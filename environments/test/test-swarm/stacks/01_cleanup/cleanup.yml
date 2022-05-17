@@ -1,0 +1,51 @@
+version: '3.8'
+
+x-default-opts: 
+  &default-opts
+  logging:
+    options:
+      logging:
+        log-driver: "json-file"
+        log-opts: 
+          max-size: "10m"
+          max-file: "3"
+
+services:
+  image-prune:
+    image: docker
+    command: sh -c "while true; do docker image prune -af --filter \"until=24h\"; sleep 86400; done"
+    networks:
+      - bridge
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+  
+  container-prune:
+    image: docker
+    command: sh -c "while true; do docker container prune -f; sleep 86400; done"
+    networks:
+      - bridge
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+networks:
+  bridge:
+    external: true
+    name: bridge

@@ -1,0 +1,12 @@
+---
+
+- name: Create the notnagel user
+  user:
+    name: notnagel
+    password: "{{ notnagel_password | password_hash('sha512', notnagel_salt) }}"
+    groups: sudo   # Empty by default.
+    state: present
+    shell: /bin/bash       # Defaults to /bin/bash
+    system: no             # Defaults to no
+    createhome: yes        # Defaults to yes
+    home: /home/notnagel  # Defaults to /home/<username>

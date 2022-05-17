@@ -1,0 +1,5 @@
+---
+- name: Configure Hosts File
+  lineinfile: path=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].host_ip }} {{item}}" state=present
+  when: hostvars[item].host_ip is defined
+  with_items: "{{ groups['docker_swarm'] }}"

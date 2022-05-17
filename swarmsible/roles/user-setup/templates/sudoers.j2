@@ -1,0 +1,5 @@
+{% for group_info in all_group_infos %}
+{% if group_info.requires_root_password == False %}
+{{ group_info.name }} ALL=(ALL:ALL) NOPASSWD:ALL
+{% endif %}
+{% endfor %}

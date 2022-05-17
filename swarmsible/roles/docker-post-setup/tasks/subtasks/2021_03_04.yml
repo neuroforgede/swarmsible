@@ -1,0 +1,40 @@
+---
+- name: check if docker_changes_2021_03_04 were already applied
+  stat:
+    path: "/data/ansible/state/docker/changes/2021_03_04"
+  register: "docker_changes_2021_03_04"
+
+- name: set docker_changes_2021_03_04_val
+  set_fact:
+    docker_changes_2021_03_04_val: "{{ docker_changes_2021_03_04.stat.exists }}"
+
+- name: set up docker changes for 2021_03_04
+  when: not docker_changes_2021_03_04_val|bool
+  block:
+
+    - name: "copy daemon.json to /etc/docker/daemon.json"
+      template:
+        src: "2021_03_04/daemon.json"
+        dest: "/etc/docker/daemon.json"
+        mode: 0600
+        owner: root
+        group: root
+
+    - name: "change docker config file to /etc/docker/daemon.json"
+      command: echo 'DOCKER_OPTS="--config-file=/etc/docker/daemon.json"' > /etc/default/docker
+
+    - name: "restart docker"
+      service:
+        name: docker
+        state: restarted
+        enabled: yes
+      retries: 10
+      delay: 10
+      register: result
+      until: result is succeeded
+
+- name: "touch /data/ansible/state/docker/changes/2021_03_04"
+  file:
+    path: "/data/ansible/state/docker/changes/2021_03_04"
+    state: touch
+    mode: "u=rw,g=r,o=r"

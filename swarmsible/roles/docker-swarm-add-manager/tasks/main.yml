@@ -1,0 +1,13 @@
+---
+- name: Check if Swarm is Already Initialized
+  shell: docker node ls
+  register: swarm_status
+  ignore_errors: true
+
+- name: Add Managers to the Swarm
+  shell: |
+    docker swarm join \
+      --token {{ hostvars[docker_swarm_main_manager]['manager_token']['stdout'] }} \
+      --advertise-addr={{ hostvars[inventory_hostname]['docker_swarm_advertise_addr'] | default(hostvars[inventory_hostname]['host_ip']) }} \
+      {{ hostvars[docker_swarm_main_manager]['docker_swarm_advertise_addr'] | default(hostvars[docker_swarm_main_manager]['host_ip']) }}
+  when: swarm_status.rc != 0
