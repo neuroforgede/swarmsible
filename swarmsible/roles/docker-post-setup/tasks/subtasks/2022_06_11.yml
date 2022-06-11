@@ -33,6 +33,14 @@
       register: result
       until: result is succeeded
 
+- name: Allow connections to metrics from docker
+  ufw:
+    rule: allow
+    proto: tcp
+    from: 172.18.0.0/16
+    to: 0.0.0.0/0
+    port: "9323"
+
 - name: "touch /data/ansible/state/docker/changes/2022_06_11"
   file:
     path: "/data/ansible/state/docker/changes/2022_06_11"
