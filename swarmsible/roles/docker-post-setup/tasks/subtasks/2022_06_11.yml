@@ -1,0 +1,40 @@
+---
+- name: check if docker_changes_2022_06_11 were already applied
+  stat:
+    path: "/data/ansible/state/docker/changes/2022_06_11"
+  register: "docker_changes_2022_06_11"
+
+- name: set docker_changes_2022_06_11_val
+  set_fact:
+    docker_changes_2022_06_11_val: "{{ docker_changes_2022_06_11.stat.exists }}"
+
+- name: set up docker changes for 2022_06_11
+  when: not docker_changes_2022_06_11_val|bool
+  block:
+
+    - name: "copy daemon.json to /etc/docker/daemon.json"
+      template:
+        src: "2022_06_11/daemon.json"
+        dest: "/etc/docker/daemon.json"
+        mode: 0600
+        owner: root
+        group: root
+
+    - name: "change docker config file to /etc/docker/daemon.json"
+      command: echo 'DOCKER_OPTS="--config-file=/etc/docker/daemon.json"' > /etc/default/docker
+
+    - name: "restart docker"
+      service:
+        name: docker
+        state: restarted
+        enabled: yes
+      retries: 10
+      delay: 10
+      register: result
+      until: result is succeeded
+
+- name: "touch /data/ansible/state/docker/changes/2022_06_11"
+  file:
+    path: "/data/ansible/state/docker/changes/2022_06_11"
+    state: touch
+    mode: "u=rw,g=r,o=r"
