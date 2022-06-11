@@ -7,5 +7,5 @@
         "syslog-facility": "daemon",
         "tag": "{{ inventory_hostname }}|{{ '{{' }}.Name{{ '}}' }}"
     },
-    "metrics-addr" : "127.0.0.1:9323"
+    "metrics-addr" : "0.0.0.0:9323"
 }
