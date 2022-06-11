@@ -1,0 +1,220 @@
+version: "3.8"
+
+services:
+  prometheus:
+    # FIXME: change this, but permission setup on the volume would be more work
+    user: root
+    entrypoint: "/etc/prometheus/docker-entrypoint.sh"
+    image:  prom/prometheus:v2.36.0
+    networks:
+      - net
+      - traefik-public
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=${PROMETHEUS_RETENTION:-24h}'
+    volumes:
+      - prometheus:/prometheus
+    configs:
+      - source: node_rules
+        target: /etc/prometheus/swarm_node.rules.yml
+      - source: task_rules
+        target: /etc/prometheus/swarm_task.rules.yml
+      - source: prometheus_entrypoint
+        target: /etc/prometheus/docker-entrypoint.sh
+        mode: 0777
+      - source: prometheus_yml
+        target: /etc/prometheus/prometheus.yml.template
+    deploy:
+      mode: replicated
+      replicas: 1
+      # placement:
+      #   constraints:
+      #     - node.role == manager
+      resources:
+        limits:
+          memory: 2048M
+        reservations:
+          memory: 128M
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.constraint-label=traefik-public
+        - traefik.http.routers.monitoring-prometheus-http.rule=Host(`prometheus-${BASE_DOMAIN}`)
+        - traefik.http.routers.monitoring-prometheus-http.entrypoints=http
+        - traefik.http.services.monitoring-prometheus.loadbalancer.server.port=9090
+        - traefik.http.middlewares.monitoring-prometheus-auth.basicauth.users=${PROMETHEUS_USERS}
+        - traefik.http.routers.monitoring-prometheus-http.middlewares=monitoring-prometheus-auth
+
+  cadvisor:
+    image: google/cadvisor
+    networks:
+      - net
+    command: -logtostderr -docker_only
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    deploy:
+      mode: global
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    entrypoint: /etc/node-exporter/docker-entrypoint.sh
+    user: root
+    networks:
+      - net
+    environment:
+      - NODE_ID={{.Node.ID}}
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /etc/hostname:/etc/nodename
+    command:
+      - '--path.sysfs=/host/sys'
+      - '--path.procfs=/host/proc'
+      - '--collector.textfile.directory=/etc/node-exporter/'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--no-collector.ipvs'
+    configs:
+      - source: nodeexporter_entrypoint
+        target: /etc/node-exporter/docker-entrypoint.sh
+        mode: 0777
+    deploy:
+      mode: global
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  dockerd-exporter:
+    image: caddy:2.5.1
+    networks:
+      - net
+    environment:
+      - DOCKER_GWBRIDGE_IP=172.18.0.1
+    configs:
+      - source: dockerd_config
+        target: /etc/caddy/Caddyfile
+    deploy:
+      mode: global
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+
+  grafana:
+    entrypoint: /custom_entrypoint.sh
+    image: grafana/grafana:8.5.5
+    user: root
+    networks:
+      - net
+      - traefik-public
+    environment:
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana:/var/lib/grafana
+    secrets:
+      - source: grafana_environment_sh
+        target: grafana_environment_sh
+    configs:
+      - source: grafana_nodes_dash
+        target: /etc/grafana/dashboards/nodes-dash.json
+      - source: grafana_prometheus_dash
+        target: /etc/grafana/dashboards/prometheus-dash.json
+      - source: grafana_services_dash
+        target: /etc/grafana/dashboards/services-dash.json
+
+      - source: grafana_dashboards
+        target: /etc/grafana/provisioning/dashboards/dashboards.yaml
+
+      - source: grafana_datasource_prometheus
+        target: /etc/grafana/provisioning/datasources/prometheus.yaml
+
+      - source: grafana_datasource_entrypoint
+        target: /custom_entrypoint.sh
+        mode: 0777
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.constraint-label=traefik-public
+        - traefik.http.routers.monitoring-grafana-http.rule=Host(`grafana-${BASE_DOMAIN}`)
+        - traefik.http.routers.monitoring-grafana-http.entrypoints=http
+        - traefik.http.services.monitoring-grafana.loadbalancer.server.port=3000
+
+configs:
+  node_rules:
+    file: ./configs/prometheus/rules/swarm_node.rules.yml
+  task_rules:
+    file: ./configs/prometheus/rules/swarm_task.rules.yml
+  prometheus_entrypoint:
+    file: ./configs/prometheus/conf/docker-entrypoint.sh
+  prometheus_yml:
+    file: ./configs/prometheus/conf/prometheus.yml
+  
+  nodeexporter_entrypoint:
+    file: ./configs/node-exporter/conf/docker-entrypoint.sh
+
+  dockerd_config:
+    file: ./configs/dockerd-exporter/Caddyfile
+
+  grafana_nodes_dash:
+    file: ./configs/grafana/conf/dashboards/nodes-dash.json
+  grafana_prometheus_dash:
+    file: ./configs/grafana/conf/dashboards/prometheus-dash.json
+  grafana_services_dash:
+    file: ./configs/grafana/conf/dashboards/services-dash.json
+  grafana_datasource_prometheus:
+    file: ./configs/grafana/conf/datasources/prometheus.yaml
+  grafana_dashboards:
+    file: ./configs/grafana/conf/dashboards.yaml
+  grafana_datasource_entrypoint:
+    file: ./configs/grafana/conf/docker-entrypoint.sh
+
+secrets:
+  grafana_environment_sh:
+    file: ./secrets/grafana/environment.sh
+
+networks:
+  net:
+    driver: overlay
+    attachable: true
+    driver_opts:
+      encrypted: ""
+  traefik-public:
+    name: "traefik-public"
+    external: true
+
+volumes:
+  prometheus:
+    driver: hetzner-volume
+    driver_opts:
+      size: '25'
+      fstype: ext4
+  grafana:
+    driver: hetzner-volume
+    driver_opts:
+      size: '25'
+      fstype: ext4
