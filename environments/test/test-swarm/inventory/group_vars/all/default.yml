@@ -30,7 +30,7 @@ docker_swarm_traefik_ingress_network_encrypt: True
 docker_swarm_default_ip_addr_pool: "10.0.0.0/8"
 docker_swarm_default_ip_addr_pool_mask_length: "24"
 
-ssh_developer_accounts:
+ssh_developer_accounts: []
 # - name: "user"
 #   groups:
 #     - "docker"
