@@ -1,5 +1,14 @@
 # 02_monitoring
 
+## How-To:
+
+0. If you are on Hetzner: Install the hetzner cloud volume plugin that is also included in this repo). If not, replace the volumes according to your requirements.
+1. Change all relevant secrets in the secrets folder
+2. run `bash deploy.sh`
+3. You can reach your grafana instance at `https://grafana-${BASE_DOMAIN}`
+
+This assumes you are running all encryption and management of SSL certificates outside of the docker swarm as is common with Cloud providers like Hetzner.
+
 Based on original swarmprom, but adapted to new image versions.
 
 Grafana:
