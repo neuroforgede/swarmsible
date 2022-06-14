@@ -13,6 +13,7 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention=${PROMETHEUS_RETENTION:-24h}'
+      - '--web.external-url=https://prometheus-${BASE_DOMAIN}'
     volumes:
       - prometheus:/prometheus
     configs:
@@ -164,6 +165,60 @@ services:
         - traefik.http.routers.monitoring-grafana-http.entrypoints=http
         - traefik.http.services.monitoring-grafana.loadbalancer.server.port=3000
 
+  alertmanager:
+    image: prom/alertmanager:v0.24.0
+    networks:
+      - net
+      - traefik-public
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=https://alertmanager-${BASE_DOMAIN}'
+      - '--data.retention=${ALERTMANAGER_RETENTION:-168h}'
+    volumes:
+      - alertmanager:/alertmanager
+    configs:
+      - source: alertmanager_yml
+        target: /etc/alertmanager/alertmanager.yml
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.constraint-label=traefik-public
+        - traefik.http.routers.monitoring-alertmanager-http.rule=Host(`alertmanager-${BASE_DOMAIN}`)
+        - traefik.http.routers.monitoring-alertmanager-http.entrypoints=http
+        - traefik.http.services.monitoring-alertmanager.loadbalancer.server.port=9093
+        - traefik.http.middlewares.monitoring-alertmanager-auth.basicauth.users=${ALERTMANAGER_USERS}
+        - traefik.http.routers.monitoring-alertmanager-http.middlewares=monitoring-alertmanager-auth
+
+  prom2teams:
+    image: idealista/prom2teams:3.2.3
+    networks:
+      - net
+    environment:
+      PROM2TEAMS_CONNECTOR: ${PROM2TEAMS_CONNECTOR}
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
 configs:
   node_rules:
     file: ./configs/prometheus/rules/swarm_node.rules.yml
@@ -173,6 +228,9 @@ configs:
     file: ./configs/prometheus/conf/docker-entrypoint.sh
   prometheus_yml:
     file: ./configs/prometheus/conf/prometheus.yml
+
+  alertmanager_yml:
+    file: ./configs/alertmanager/alertmanager.yml
   
   nodeexporter_entrypoint:
     file: ./configs/node-exporter/conf/docker-entrypoint.sh
@@ -217,4 +275,9 @@ volumes:
     driver: hetzner-volume
     driver_opts:
       size: '25'
+      fstype: ext4
+  alertmanager:
+    driver: hetzner-volume
+    driver_opts:
+      size: '10'
       fstype: ext4
