@@ -1,0 +1,7 @@
+route:
+    receiver: 'prom2teams'
+
+receivers:
+    - name: 'prom2teams'
+      webhook_configs:
+        - url: "http://prom2teams:8089"
