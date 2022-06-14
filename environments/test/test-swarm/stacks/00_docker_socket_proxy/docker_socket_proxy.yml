@@ -20,8 +20,7 @@ services:
       VERSION: 1
 
     deploy:
-      mode: replicated
-      replicas: 2
+      mode: global
       update_config:
         order: stop-first
         parallelism: 1
@@ -34,8 +33,6 @@ services:
       placement:
         preferences:
           - spread: node.labels.host
-        # so that the replacement can come up at all
-        max_replicas_per_node: 1
         constraints:
           - node.role==manager
       
