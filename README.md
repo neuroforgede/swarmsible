@@ -5,11 +5,12 @@ Simple Ansible based Tooling for setting up and managing a production grade Dock
 This repository is designed to be used in in a setup with an external Load Balancer that handles the routing
 to the actual Traefik Ingress via a private Network.
 
-Attaching Volumes to servers is out of scope of this repository as well. We suggest using either NFS
-or in the case of Hetzner Cloud Volumes. No automatic moving of Hetzner Cloud Volumes between Hosts if a host goes down is
-implemented. Instead we suggest to do this either manually or script it via separate tooling. In either case
-using labels to mark nodes to have a particular volume present is a good idea. This repository contains the necessary
-playbooks to achieve relabeling of nodes.
+This repository assumes usage of Hetzner for Cloud Volumes via https://github.com/costela/docker-volume-hetzner.
+
+# Docker Swarm Stacks
+
+To get started with an actual swarm, you will need Stacks. You can find all relevant stacks [here](./environments/test/test-swarm/stacks).
+These stacks are configured via the configs/secrets folders, so check these out before deploying.
 
 # Used software
 
@@ -19,7 +20,7 @@ playbooks to achieve relabeling of nodes.
 4. ansible role geerlingguy.docker
 5. docker-stack-deploy for secret rotation (https://github.com/neuroforgede/docker-stack-deploy)
 
-# Labeling Nodes & Volumes
+# Labeling Nodes
 
 ```
 docker1:
