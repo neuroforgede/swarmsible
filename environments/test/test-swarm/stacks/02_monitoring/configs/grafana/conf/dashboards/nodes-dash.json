@@ -25,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "iteration": 1655036212111,
+  "iteration": 1655375203791,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -1799,6 +1799,97 @@
       }
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 57
+      },
+      "id": 26,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "min by (device) ((node_filesystem_free_bytes{device=~\"/dev/disk/by-id/scsi-.*HC_Volume_.*\"} / node_filesystem_size_bytes{device=~\"/dev/disk/by-id/scsi-.*HC_Volume_.*\"}))",
+          "format": "time_series",
+          "legendFormat": "{{label_name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Hetzner Volume Free Space",
+      "type": "timeseries"
+    },
+    {
       "columns": [],
       "datasource": {
         "type": "prometheus",
@@ -1809,7 +1900,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 57
+        "y": 65
       },
       "hideTimeOverride": true,
       "id": 20,
@@ -1870,7 +1961,7 @@
       {
         "allValue": ".+",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -1900,7 +1991,7 @@
         "auto_count": 30,
         "auto_min": "30s",
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },
@@ -1973,8 +2064,8 @@
     ]
   },
   "time": {
-    "from": "now-15m",
-    "to": "now"
+    "from": "2022-06-16T08:21:27.290Z",
+    "to": "2022-06-16T12:21:27.290Z"
   },
   "timepicker": {
     "refresh_intervals": [

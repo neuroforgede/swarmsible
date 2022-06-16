@@ -82,6 +82,7 @@ services:
     command:
       - '--path.sysfs=/host/sys'
       - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
       - '--collector.textfile.directory=/etc/node-exporter/'
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
       - '--no-collector.ipvs'
