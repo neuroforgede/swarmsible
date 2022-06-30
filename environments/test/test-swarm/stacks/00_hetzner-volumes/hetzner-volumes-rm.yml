@@ -4,7 +4,7 @@ version: '3.8'
 services:
   docker_volume_hetzner:
     image: docker
-    command: sh -c "docker plugin disable hetzner-volume && docker plugin rm hetzner-volume"
+    command: sh -c "(docker plugin disable hetzner-volume || echo 'plugin already disabled') && docker plugin rm hetzner-volume"
     networks:
       - bridge
     volumes:
