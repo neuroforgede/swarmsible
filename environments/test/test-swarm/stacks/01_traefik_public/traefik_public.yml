@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   traefik_ingress:
-    image: traefik:v2.6
+    image: traefik:v2.8
     
     networks:
       - docker_socket_proxy
