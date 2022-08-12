@@ -1,16 +1,9 @@
 ---
-- name: populate labels dict
-  set_fact:
-    __labels: "{{ __labels| default({}) | combine( {'ansible_group_' + item: '1'} ) }}"
-  with_items:
-    - "{{ group_names }}"
-
-- name: "add host defined labels"
-  set_fact:
-    __labels: "{{ __labels| default({}) | combine(docker_swarm_labels | default({})) }}"
 
 - name: set docker swarm labels
   docker_node:
-    labels: "{{ __labels }}"
+    labels: "{{ hostvars[item]['docker_swarm_labels'] }}"
     labels_state: replace
-    hostname: "{{ inventory_hostname }}"
+    hostname: "{{ hostvars[item]['inventory_hostname'] }}"
+  when: inventory_hostname == docker_swarm_main_manager
+  with_items: "{{ groups['docker_swarm'] | default([]) }}"
