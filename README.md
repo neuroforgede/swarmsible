@@ -1,3 +1,5 @@
+Proudly made by [NeuroForge](https://neuroforge.de/) in Bayreuth, Germany.
+
 # swarmsible
 
 Simple Ansible based Tooling for setting up and managing a production grade Docker Swarm on Ubuntu 18.04/20.04.
