@@ -27,7 +27,7 @@ services:
       - --providers.docker.endpoint=tcp://docker.socket.proxy.local:2375
       - --entrypoints.http.address=:80 
       # enable this if you need to forward headers via multiple proxies in front of traefik (e.g. a Hetzner LB in front of the swarm)
-      # - --entrypoints.http.forwardedHeaders.trustedIPs=127.0.0.1/32,10.0.0.0/16,192.168.0.0/24
+      # - --entrypoints.http.forwardedHeaders.trustedIPs=127.0.0.1/32,10.0.0.0/8,192.168.0.0/24
       - --ping
       - --accesslog
       - --log
