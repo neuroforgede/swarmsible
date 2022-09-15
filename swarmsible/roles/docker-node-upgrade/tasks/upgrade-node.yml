@@ -1,0 +1,38 @@
+- name: "drain node {{ current_docker_node }}"
+  shell: docker node update --availability drain '{{ hostvars[current_docker_node]['inventory_hostname'] }}'
+  when: inventory_hostname == docker_swarm_main_manager
+
+- name: "wait until node {{ current_docker_node }} has drained"
+  shell: |
+    if [ -n "$(docker ps -q)" ]; then
+      exit 1
+    else
+      exit 0
+    fi
+  retries: 1000
+  delay: 10
+  register: drained
+  until: drained is not failed
+  when: inventory_hostname == current_docker_node
+
+- name: "upgrade node {{ current_docker_node }}"
+  shell: apt-get update && apt-get upgrade -y
+  when: inventory_hostname == current_docker_node
+
+- name: "upgrade docker tools on {{ current_docker_node }}"
+  shell: apt-get update && apt-get install --allow-change-held-packages -y docker-ce docker-ce-rootless-extras docker-ce-cli containerd.io
+  when: inventory_hostname == current_docker_node
+
+- name: "Reboot node {{ current_docker_node }}"
+  ansible.builtin.reboot:
+    reboot_timeout: 3600
+    search_paths: ['/lib/molly-guard', '/sbin']
+  when: inventory_hostname == current_docker_node
+
+- name: "Run canary command on node {{ current_docker_node }} to check if it is up before continuing"
+  shell: "echo 'all fine'"
+  when: inventory_hostname == current_docker_node
+
+- name: "set node {{ current_docker_node }} active"
+  shell: docker node update --availability active '{{ hostvars[current_docker_node]['inventory_hostname'] }}'
+  when: inventory_hostname == docker_swarm_main_manager

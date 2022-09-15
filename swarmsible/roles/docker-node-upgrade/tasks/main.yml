@@ -1,0 +1,22 @@
+# This role is definitely written optimally and does stuff in a convoluted way
+# but encodes the proper way to do swarm upgrades rather nicely
+
+# first upgrade all "non main nodes" - our ansible playbooks need a main node
+- name: Update node in Swarm
+  vars:
+    current_docker_node: "{{ __item }}"
+  include_tasks: upgrade-node.yml
+  loop_control:
+    loop_var: "__item"
+  when: __item != docker_swarm_main_manager
+  with_items: "{{ groups['docker_swarm'] | default([]) }}"
+
+# once every one else is upgraded, upgrade the ansible main node
+- name: Update main manager
+  vars:
+    current_docker_node: "{{ __item }}"
+  include_tasks: upgrade-node.yml
+  loop_control:
+    loop_var: "__item"
+  when: __item == docker_swarm_main_manager
+  with_items: "{{ groups['docker_swarm'] | default([]) }}"

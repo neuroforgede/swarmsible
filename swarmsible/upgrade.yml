@@ -16,9 +16,12 @@
       - docker-ce
       - docker-ce-rootless-extras
       - docker-scan-plugin
-  - name: Upgrade packages safe
-    async: 3600
-    poll: 5
-    apt:
-      update_cache: yes
-      upgrade: safe
+
+- hosts: all
+  vars:
+    ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
+    ansible_user: "{{ global_ansible_user | default('ansible') }}"
+  become: True
+  gather_facts: true
+  roles:
+    - docker-node-upgrade
