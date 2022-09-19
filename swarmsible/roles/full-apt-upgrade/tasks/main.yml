@@ -22,6 +22,7 @@
 
 - name: Restart after dist upgrade.
   reboot:
+    search_paths: ['/lib/molly-guard', '/sbin']
     connect_timeout: 30
     reboot_timeout: 300
   when: (apt_restart_after_dist_upgrade == True and dist_upgraded.changed)
