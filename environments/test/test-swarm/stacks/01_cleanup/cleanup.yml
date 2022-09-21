@@ -45,6 +45,24 @@ services:
           cpus: "0.5"
           memory: 512M
 
+  # prunes all unused local volumes. DONT use this if you rely on local volumes, see https://docs.docker.com/config/pruning/#prune-volumes
+  # volume-prune:
+  #   image: docker
+  #   command: sh -c "while true; do docker volume prune -f; sleep 86400; done"
+  #   networks:
+  #     - bridge
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   deploy:
+  #     mode: global
+  #     placement:
+  #       constraints: [node.platform.os == linux]
+  # 
+  #     resources:
+  #       limits:
+  #         cpus: "0.5"
+  #         memory: 512M
+
 networks:
   bridge:
     external: true
