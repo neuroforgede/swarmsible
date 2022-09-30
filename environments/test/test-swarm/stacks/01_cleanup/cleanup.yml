@@ -1,15 +1,5 @@
 version: '3.8'
 
-x-default-opts: 
-  &default-opts
-  logging:
-    options:
-      logging:
-        log-driver: "json-file"
-        log-opts: 
-          max-size: "10m"
-          max-file: "3"
-
 services:
   image-prune:
     image: docker
