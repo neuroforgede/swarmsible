@@ -1,19 +1,9 @@
 version: '3.8'
 
-x-default-opts: 
-  &default-opts
-  logging:
-    options:
-      logging:
-        log-driver: "json-file"
-        log-opts: 
-          max-size: "10m"
-          max-file: "3"
-
 services:
   image-prune:
     image: docker
-    command: sh -c "while true; do docker image prune -af --filter \"until=24h\"; sleep 86400; done"
+    command: docker image prune -af --filter "until=24h"
     networks:
       - bridge
     volumes:
@@ -22,7 +12,9 @@ services:
       mode: global
       placement:
         constraints: [node.platform.os == linux]
-
+      restart_policy:
+        # daily
+        delay: 86400s
       resources:
         limits:
           cpus: "0.5"
@@ -30,7 +22,7 @@ services:
   
   container-prune:
     image: docker
-    command: sh -c "while true; do docker container prune -f; sleep 86400; done"
+    command: docker container prune -f
     networks:
       - bridge
     volumes:
@@ -39,7 +31,28 @@ services:
       mode: global
       placement:
         constraints: [node.platform.os == linux]
+      restart_policy:
+        # daily
+        delay: 86400s
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
 
+  volume-prune:
+    image: docker
+    command: docker volume prune -f
+    networks:
+      - bridge
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+      restart_policy:
+        # daily
+        delay: 86400s
       resources:
         limits:
           cpus: "0.5"

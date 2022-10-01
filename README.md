@@ -2,7 +2,9 @@ Proudly made by [NeuroForge](https://neuroforge.de/) in Bayreuth, Germany.
 
 # swarmsible
 
-Simple Ansible based Tooling for setting up and managing a production grade Docker Swarm on Ubuntu 18.04/20.04.
+Simple Ansible based Tooling for setting up and managing a production grade Docker Swarm.
+
+Currently tested and validated on Ubuntu 18.04/20.04.
 
 This repository is designed to be used in in a setup with an external Load Balancer that handles the routing
 to the actual Traefik Ingress via a private Network.

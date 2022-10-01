@@ -29,9 +29,6 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-      # placement:
-      #   constraints:
-      #     - node.role == manager
       resources:
         limits:
           memory: 2048M
@@ -65,6 +62,22 @@ services:
           memory: 128M
         reservations:
           memory: 64M
+
+  docker-engine-events-exporter:
+    image: neuroforgede/docker-engine-events-exporter:0.1
+    networks:
+      - net
+    environment:
+      - DOCKER_HOSTNAME={{.Node.Hostname}}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      mode: global
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -150,9 +163,6 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
       resources:
         limits:
           memory: 128M
@@ -184,9 +194,6 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
       resources:
         limits:
           memory: 128M
@@ -211,9 +218,6 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
       resources:
         limits:
           memory: 128M
