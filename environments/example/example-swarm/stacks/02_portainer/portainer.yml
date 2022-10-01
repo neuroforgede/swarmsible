@@ -40,7 +40,7 @@ services:
         - "traefik.docker.network=traefik-public"
         
         - "traefik.enable=true"
-        - "traefik.http.routers.portainer-frontend.rule=Host(`portainer.test.tld.localhost`)"
+        - "traefik.http.routers.portainer-frontend.rule=Host(`portainer.example.tld.localhost`)"
         - "traefik.http.routers.portainer-frontend.entrypoints=http"
         - "traefik.http.services.portainer-frontend.loadbalancer.server.port=9000"
         - "traefik.http.routers.portainer-frontend.service=portainer-frontend"

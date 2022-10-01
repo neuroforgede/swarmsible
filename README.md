@@ -11,7 +11,7 @@ This repository assumes usage of Hetzner for Cloud Volumes via https://github.co
 
 # Docker Swarm Stacks
 
-To get started with an actual swarm, you will need Stacks. You can find all relevant stacks [here](./environments/test/test-swarm/stacks).
+To get started with an actual swarm, you will need Stacks. You can find all relevant stacks [here](./environments/example/example-swarm/stacks).
 These stacks are configured via the configs/secrets folders, so check these out before deploying.
 
 # Used software
