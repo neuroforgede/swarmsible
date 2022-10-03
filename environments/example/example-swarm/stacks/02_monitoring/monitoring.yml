@@ -70,7 +70,7 @@ services:
       mode: global
       resources:
         limits:
-          memory: 128M
+          memory: 256M
         reservations:
           memory: 64M
 
@@ -130,7 +130,7 @@ services:
       mode: global
       resources:
         limits:
-          memory: 128M
+          memory: 256M
         reservations:
           memory: 64M
 
@@ -151,7 +151,7 @@ services:
       mode: global
       resources:
         limits:
-          memory: 128M
+          memory: 256M
         reservations:
           memory: 64M
 
@@ -236,7 +236,7 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: 128M
+          memory: 256M
         reservations:
           memory: 64M
       labels:
@@ -266,7 +266,7 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: 128M
+          memory: 256M
         reservations:
           memory: 64M
 
