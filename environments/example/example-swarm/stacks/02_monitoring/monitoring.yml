@@ -250,7 +250,8 @@ services:
         - traefik.http.routers.monitoring-alertmanager-http.middlewares=monitoring-alertmanager-auth
 
   prom2teams:
-    image: idealista/prom2teams:3.2.3
+    image: idealista/prom2teams:3.3.0
+    entrypoint: /bin/sh -c "python /opt/prom2teams/replace_config.py && exec prom2teams --loglevel INFO"
     healthcheck:
       test: ["CMD", "wget", "--tries=1", "--spider", "--quiet", "http://localhost:8089/metrics"]
       interval: 10s
