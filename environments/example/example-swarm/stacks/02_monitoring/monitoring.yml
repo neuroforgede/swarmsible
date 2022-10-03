@@ -130,6 +130,11 @@ services:
     entrypoint: /custom_entrypoint.sh
     image: grafana/grafana:9.1.6
     user: root
+    test: ["CMD", "wget", "--tries=1", "--spider", "--quiet", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 2
+      start_period: 10s
     networks:
       - net
       - traefik-public
