@@ -242,9 +242,6 @@ configs:
   nodeexporter_entrypoint:
     file: ./configs/node-exporter/conf/docker-entrypoint.sh
 
-  dockerd_config:
-    file: ./configs/dockerd-exporter/Caddyfile
-
   grafana_nodes_dash:
     file: ./configs/grafana/conf/dashboards/nodes-dash.json
   grafana_prometheus_dash:
