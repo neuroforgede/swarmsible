@@ -98,3 +98,12 @@
     port: "4789"
     comment: "docker swarm 4789 udp - source: {{ item.name }}"
   with_items: "{{ docker_swarm_trusted_sources | default([]) }}"
+
+- name: Allow 9323 metrics connections via local bridge networks
+  ufw:
+    rule: allow
+    proto: tcp
+    src: "172.16.0.0/12"
+    to: "172.16.0.0/12"
+    port: "9323"
+    comment: "docker metrics on 9323/tcp"
