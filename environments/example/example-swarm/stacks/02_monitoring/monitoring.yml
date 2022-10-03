@@ -112,14 +112,12 @@ services:
           memory: 64M
 
   dockerd-exporter:
-    image: caddy:2.5.1
+    image: caddy:2.6.1
+    command: caddy reverse-proxy --from :9323 --to docker.host.internal:9323
     networks:
       - net
-    environment:
-      - DOCKER_GWBRIDGE_IP=172.18.0.1
-    configs:
-      - source: dockerd_config
-        target: /etc/caddy/Caddyfile
+    extra_hosts:
+      - host.docker.internal:host-gateway
     deploy:
       mode: global
       resources:
@@ -128,10 +126,9 @@ services:
         reservations:
           memory: 64M
 
-
   grafana:
     entrypoint: /custom_entrypoint.sh
-    image: grafana/grafana:9.0.7
+    image: grafana/grafana:9.1.6
     user: root
     networks:
       - net
