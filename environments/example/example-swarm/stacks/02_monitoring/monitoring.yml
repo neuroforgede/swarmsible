@@ -70,7 +70,7 @@ services:
       mode: global
       resources:
         limits:
-          memory: 128M
+          memory: 256M
         reservations:
           memory: 64M
 
@@ -130,28 +130,7 @@ services:
       mode: global
       resources:
         limits:
-          memory: 128M
-        reservations:
-          memory: 64M
-
-  dockerd-exporter:
-    image: caddy:2.6.1
-    command: caddy reverse-proxy --from :9323 --to host.docker.internal:9323
-    healthcheck:
-      test: ["CMD", "wget", "--tries=1", "--spider", "--quiet", "http://localhost:9323/metrics"]
-      interval: 10s
-      timeout: 10s
-      retries: 2
-      start_period: 10s
-    networks:
-      - net
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    deploy:
-      mode: global
-      resources:
-        limits:
-          memory: 128M
+          memory: 256M
         reservations:
           memory: 64M
 
@@ -236,7 +215,7 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: 128M
+          memory: 256M
         reservations:
           memory: 64M
       labels:
@@ -250,7 +229,8 @@ services:
         - traefik.http.routers.monitoring-alertmanager-http.middlewares=monitoring-alertmanager-auth
 
   prom2teams:
-    image: idealista/prom2teams:3.2.3
+    image: idealista/prom2teams:3.3.0
+    entrypoint: /bin/sh -c "python /opt/prom2teams/replace_config.py && exec prom2teams --loglevel INFO"
     healthcheck:
       test: ["CMD", "wget", "--tries=1", "--spider", "--quiet", "http://localhost:8089/metrics"]
       interval: 10s
@@ -266,7 +246,7 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: 128M
+          memory: 256M
         reservations:
           memory: 64M
 
