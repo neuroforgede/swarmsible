@@ -59,7 +59,7 @@
   roles:
     - docker-sysctl-tune
     - docker-pre-setup
-    - geerlingguy.docker
+    - docker-setup
 
 - hosts: all
   vars:

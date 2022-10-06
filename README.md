@@ -21,7 +21,7 @@ These stacks are configured via the configs/secrets folders, so check these out 
 1. NeuroForge [ufw-docker fork](https://github.com/neuroforgede/ufw-docker) to configure firewall to disable access to published ports on public IPs by default
 2. Docker CE with Docker Swarm Mode
 3. Ansible >= 2.8
-4. ansible role geerlingguy.docker
+4. docker-setup role adapted from geerlingguy.docker
 5. docker-stack-deploy for secret rotation (https://github.com/neuroforgede/docker-stack-deploy)
 
 # Labeling Nodes

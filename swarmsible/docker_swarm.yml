@@ -10,7 +10,7 @@
     - copy-ssl-certs
     - docker-sysctl-tune
     - docker-pre-setup
-    - geerlingguy.docker
+    - docker-setup
     - docker-post-setup
     - docker-login
     - ufw-docker-install
