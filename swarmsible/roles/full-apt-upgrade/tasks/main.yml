@@ -1,28 +1,61 @@
 ---
-#(occured during testing, manual apt update fixed this)
-- name: "manual apt update to fix problems with permissions"
-  raw: apt update -y
 
-- name: apt update
-  apt:
-    update_cache: "{{ apt_update_cache | default('True') }}"
+- name: "ensure /data/ansible exists"
+  file:
+    path: /data/ansible
+    state: directory
 
-- name: apt dist-upgrade
-  apt:
-    upgrade: dist
-  register: dist_upgraded
+- name: "ensure /data/ansible/state exists"
+  file:
+    path: /data/ansible/state
+    state: directory
 
-- name: Remove useless packages from the apt cache
-  apt:
-    autoclean: yes
+- name: check if full apt upgrade was already run once
+  stat:
+    path: "/data/ansible/state/initial_apt_upgrade"
+  register: "initial_apt_upgrade_already_run"
 
-- name: Remove dependencies that are no longer required
-  apt:
-    autoremove: yes
+- name: "check if a previous docker setup already run"
+  stat:
+    path: "/data/ansible/state/docker/changes/2022_06_11"
+  register: "docker_already_setup"
 
-- name: Restart after dist upgrade.
-  reboot:
-    search_paths: ['/lib/molly-guard', '/sbin']
-    connect_timeout: 30
-    reboot_timeout: 300
-  when: (apt_restart_after_dist_upgrade == True and dist_upgraded.changed)
+- name: set initial_apt_upgrade_already_run_val
+  set_fact:
+    initial_apt_upgrade_already_run_val: "{{ initial_apt_upgrade_already_run.stat.exists or docker_already_setup.stat.exists}}"
+
+- name: run initial upgrade
+  when: not (initial_apt_upgrade_already_run_val|bool)
+  block:
+  #(occured during testing, manual apt update fixed this)
+  - name: "manual apt update to fix problems with permissions"
+    raw: apt update -y
+
+  - name: apt update
+    apt:
+      update_cache: "{{ apt_update_cache | default('True') }}"
+
+  - name: apt dist-upgrade
+    apt:
+      upgrade: dist
+    register: dist_upgraded
+
+  - name: Remove useless packages from the apt cache
+    apt:
+      autoclean: yes
+
+  - name: Remove dependencies that are no longer required
+    apt:
+      autoremove: yes
+
+  - name: Restart after dist upgrade.
+    reboot:
+      connect_timeout: 30
+      reboot_timeout: 300
+    when: (apt_restart_after_dist_upgrade == True and dist_upgraded.changed)
+
+- name: "touch /data/ansible/state/initial_apt_upgrade"
+  file:
+    path: "/data/ansible/state/initial_apt_upgrade"
+    state: touch
+    mode: "u=rw,g=r,o=r"
