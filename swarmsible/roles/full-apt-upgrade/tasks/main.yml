@@ -52,6 +52,7 @@
     reboot:
       connect_timeout: 30
       reboot_timeout: 300
+      search_paths: ['/lib/molly-guard', '/sbin']
     when: (apt_restart_after_dist_upgrade == True and dist_upgraded.changed)
 
 - name: "touch /data/ansible/state/initial_apt_upgrade"
