@@ -15,7 +15,7 @@
   package:
     name: "{{ docker_packages }}"
     state: "present"
-  when: not docker_installed.changed
+  when: docker_installed.changed
 
 - name: Ensure /etc/docker/ directory exists.
   file:
