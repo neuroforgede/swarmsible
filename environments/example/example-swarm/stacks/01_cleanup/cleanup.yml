@@ -22,7 +22,7 @@ services:
   
   container-prune:
     image: docker
-    command: docker container prune -f
+    command: docker container prune -f --filter "until=24h" --filter "label!=com.docker.swarm.task"
     networks:
       - bridge
     volumes:
