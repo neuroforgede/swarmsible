@@ -1,0 +1,18 @@
+- name: "initialize inventory variables"
+  when: "initialize_variables_from_hetzner | bool"
+  block:
+  - set_fact:
+      group_index: "{{ inventory_hostname | regex_search('[a-zA-Z]-0*(.*)', '\\1') | first }}"
+
+  - set_fact:
+      docker_swarm_advertise_addr: "192.168.1.{{ (group_index | int) + 1 }}" 
+    when: "'docker_swarm_manager' in group_names"
+
+  - set_fact:
+      docker_swarm_advertise_addr: "192.168.2.{{ (group_index | int) + 1 }}" 
+    when: "'docker_swarm_worker' in group_names"
+
+  - set_fact:
+      docker_swarm_labels:
+        host: " {{ inventory_hostname }}"
+        hetzner_location: "{{ location }}"
