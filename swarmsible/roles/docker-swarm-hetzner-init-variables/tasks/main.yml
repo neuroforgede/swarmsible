@@ -1,5 +1,5 @@
 - name: "initialize inventory variables"
-  when: "initialize_variables_from_hetzner | bool"
+  when: "initialize_variables_from_hetzner | default('False') | bool"
   block:
   - set_fact:
       group_index: "{{ inventory_hostname | regex_search('[a-zA-Z]-0*(.*)', '\\1') | first }}"
