@@ -14,5 +14,5 @@
 
   - set_fact:
       docker_swarm_labels:
-        host: " {{ inventory_hostname }}"
+        host: "{{ inventory_hostname }}"
         hetzner_location: "{{ location }}"
