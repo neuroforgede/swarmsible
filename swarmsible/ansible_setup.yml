@@ -6,9 +6,8 @@
   gather_facts: False
   become: True
   tasks:
-    # ansible only requires only a minimal installation of python 2.x on the managed machines
     - name: "ansible required: install python"
-      raw: apt update -y && apt install python3-minimal -y && apt install python3-simplejson -y
+      raw: apt-get update -y && apt-get install python3-minimal -y && apt-get install python3-simplejson -y
 
 - hosts: all
   vars:
