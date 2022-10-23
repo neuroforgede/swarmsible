@@ -6,11 +6,6 @@ Simple Ansible based Tooling for setting up and managing a production grade Dock
 
 Currently tested and validated on Ubuntu 18.04/20.04.
 
-This repository is designed to be used in in a setup with an external Load Balancer that handles the routing
-to the actual Traefik Ingress via a private Network.
-
-This repository assumes usage of Hetzner for Cloud Volumes via https://github.com/costela/docker-volume-hetzner.
-
 # Companion Repos
 
 - [swarmsible-hetzner](https://github.com/neuroforgede/swarmsible-hetzner) (Automatic provisioning of VMs at Hetzner for use with this repo)
