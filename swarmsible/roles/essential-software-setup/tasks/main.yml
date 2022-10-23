@@ -25,7 +25,6 @@
     - python3-setuptools
     - python3-pip
     - python3-passlib
-    - python3.8-venv
     - git
     - acl
     
