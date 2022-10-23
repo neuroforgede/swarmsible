@@ -13,6 +13,9 @@
     when: "'docker_swarm_worker' in group_names"
 
   - set_fact:
+      host_ip: "{{ ansible_host }}"
+
+  - set_fact:
       docker_swarm_labels:
         host: "{{ inventory_hostname }}"
         hetzner_location: "{{ location }}"
