@@ -11,10 +11,11 @@ to the actual Traefik Ingress via a private Network.
 
 This repository assumes usage of Hetzner for Cloud Volumes via https://github.com/costela/docker-volume-hetzner.
 
-# Docker Swarm Stacks
+# Companion Repos
 
-To get started with an actual swarm, you will need Stacks. You can find all relevant stacks [here](./environments/example/example-swarm/stacks).
-These stacks are configured via the configs/secrets folders, so check these out before deploying.
+- [swarmsible-hetzner](https://github.com/neuroforgede/swarmsible-hetzner) (Automatic provisioning of VMs at Hetzner for use with this repo)
+- [swarmsible-stacks](https://github.com/neuroforgede/swarmsible-stacks) (Production grade Docker Stacks)
+- [swarmsible-example](https://github.com/neuroforgede/swarmsible-example) (Example Environment)
 
 # Used software
 
