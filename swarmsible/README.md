@@ -11,6 +11,12 @@ implemented. Instead we suggest to do this either manually or script it via sepa
 using labels to mark nodes to have a particular volume present is a good idea. This repository contains the necessary
 playbooks to achieve relabeling of nodes.
 
+# Companion Repos
+
+- [swarmsible-hetzner](https://github.com/neuroforgede/swarmsible-hetzner) (Automatic provisioning of VMs at Hetzner for use with this repo)
+- [swarmsible-stacks](https://github.com/neuroforgede/swarmsible-stacks) (Production grade Docker Stacks)
+- [swarmsible-example](https://github.com/neuroforgede/swarmsible-example) (Example Environment)
+
 # Used software
 
 1. [Traefik](https://doc.traefik.io/traefik/) for Ingress
