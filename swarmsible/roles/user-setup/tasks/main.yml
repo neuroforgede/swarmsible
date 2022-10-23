@@ -1,6 +1,6 @@
 ---
 - name: set up root
-  include: subtasks/root-setup.yml
+  include_tasks: subtasks/root-setup.yml
 
 - name: set group info for ansible group into a dict
   set_fact:
@@ -10,10 +10,14 @@
 
 - name: construct list of all group infos
   set_fact:
-    all_group_infos: "{{ setup_additional_groups | default([]) }} + [ {{ ansible_group_info }} ]"
+    all_group_infos: "{{ (setup_additional_groups | default([])) + [ansible_group_info] }}"
 
 - name: set up groups
-  include: subtasks/setup-single-group.yml group="{{ item }}"
+  group:
+    name: "{{ group.name }}"
+    state: present
+  vars:
+    group: "{{ item }}"
   with_items: "{{ all_group_infos }}"
 
 - name: allow relevant groups to become super user without password
@@ -34,13 +38,15 @@
 
 - name: construct list of all user infos
   set_fact:
-    all_user_infos: "{{ setup_additional_users | default([]) }} + [ {{ ansible_user_info }} ]"
+    all_user_infos: "{{ (setup_additional_users | default([])) + [ansible_user_info] }}"
 
 - name: set up users
-  include: subtasks/setup-single-user.yml user="{{ item }}"
+  include_tasks: subtasks/setup-single-user.yml
+  vars:
+    user: "{{ item }}"
   with_items: "{{ all_user_infos }}"
 
 # now that we definitely have a way back in (including root), we can disable root
 # SSH login for all ips (except the management nodes)
 - name: ssh config
-  include: subtasks/sshd-config.yml
+  include_tasks: subtasks/sshd-config.yml

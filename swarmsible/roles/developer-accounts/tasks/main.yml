@@ -27,12 +27,17 @@
   with_items: "{{ ssh_developer_accounts | default([]) }}"
 
 - name: Add key for users with a single key
-  include: subtasks/add-single-key.yml user="{{ item.name }}"
+  include_tasks: subtasks/add-single-key.yml
+  vars:
+    user: "{{ item.name }}"
   with_items:
     - "{{ ssh_developer_accounts | default([]) }}"
 
 - name: Add keys for users with additional keys
-  include: subtasks/add-additional-keys.yml user="{{ item.name }}" additional_keys="{{ item.additional_keys }}"
+  include_tasks: subtasks/add-additional-keys.yml
+  vars:
+    user: "{{ item.name }}"
+    additional_keys: "{{ item.additional_keys }}"
   with_items:
     - "{{ ssh_developer_accounts | default([]) }}"
 
@@ -53,6 +58,8 @@
   no_log: true
 
 - name: Add keys for users with multiple keys [directory]
-  include: subtasks/add-multiple-keys.yml user="{{ item }}"
+  include_tasks: subtasks/add-multiple-keys.yml
+  vars:
+    user: "{{ item }}"
   with_items:
     - "{{ users_with_directory | default([]) }}"
