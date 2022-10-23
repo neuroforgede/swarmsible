@@ -24,4 +24,5 @@
   become: True
   gather_facts: true
   roles:
+    - docker-swarm-hetzner-init-variables
     - docker-node-upgrade

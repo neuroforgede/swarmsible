@@ -7,6 +7,7 @@
   roles:
     # copy the ssl certs from the beginning so all nodes have the certs on the system
     # so all mounts work
+    - docker-swarm-hetzner-init-variables
     - copy-ssl-certs
     - docker-sysctl-tune
     - docker-pre-setup
@@ -23,6 +24,7 @@
     ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
     ansible_user: "{{ global_ansible_user | default('ansible') }}"
   roles:
+    - docker-swarm-hetzner-init-variables
     - docker-swarm-init
     - docker-swarm-add-manager
 
@@ -32,6 +34,7 @@
     ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
     ansible_user: "{{ global_ansible_user | default('ansible') }}"
   roles:
+    - docker-swarm-hetzner-init-variables
     - docker-swarm-add-worker
 
 - hosts: docker_swarm
@@ -40,4 +43,5 @@
     ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
     ansible_user: "{{ global_ansible_user | default('ansible') }}"
   roles:
+    - docker-swarm-hetzner-init-variables
     - docker-swarm-labels
