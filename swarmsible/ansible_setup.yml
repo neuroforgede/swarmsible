@@ -7,7 +7,7 @@
   become: True
   tasks:
     - name: "ansible required: install python"
-      raw: DEBIAN_FRONTEND=noninteractive apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get install python3-minimal -y && DEBIAN_FRONTEND=noninteractive apt-get install python3-simplejson -y
+      raw: python3 -c "import simplejson" || (DEBIAN_FRONTEND=noninteractive apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get install python3-minimal -y && DEBIAN_FRONTEND=noninteractive apt-get install python3-simplejson -y)
 
 - hosts: all
   vars:
