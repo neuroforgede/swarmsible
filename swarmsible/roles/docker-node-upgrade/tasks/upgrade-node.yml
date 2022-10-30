@@ -16,11 +16,11 @@
   when: inventory_hostname == current_docker_node
 
 - name: "upgrade node {{ current_docker_node }}"
-  shell: apt-get update && apt-get upgrade -y
+  shell: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
   when: inventory_hostname == current_docker_node
 
 - name: "upgrade docker tools on {{ current_docker_node }}"
-  shell: apt-get update && apt-get install --allow-change-held-packages -y docker-ce docker-ce-rootless-extras docker-ce-cli containerd.io
+  shell: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --allow-change-held-packages -y docker-ce docker-ce-rootless-extras docker-ce-cli containerd.io
   when: inventory_hostname == current_docker_node
 
 - name: "Reboot node {{ current_docker_node }}"
