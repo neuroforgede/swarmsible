@@ -59,6 +59,7 @@
   - name: Restart after dist upgrade.
     reboot:
       reboot_timeout: 300
+      post_reboot_delay: 10
       search_paths: ['/lib/molly-guard', '/sbin']
 
 - name: "touch /data/ansible/state/initial_apt_upgrade"
