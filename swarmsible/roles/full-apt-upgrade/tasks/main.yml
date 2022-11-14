@@ -48,11 +48,18 @@
     apt:
       autoremove: yes
 
+  - name: Switch to the legacy variant of iptables because of a bug in the nft version
+    alternatives:
+      name: iptables
+      path: /usr/sbin/iptables-legacy
+      link: /etc/alternatives/iptables
+    register: iptables_legacy
+    when: ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('20.04', '>=')  
+
   - name: Restart after dist upgrade.
     reboot:
       reboot_timeout: 300
       search_paths: ['/lib/molly-guard', '/sbin']
-    when: (apt_restart_after_dist_upgrade == True and dist_upgraded.changed)
 
 - name: "touch /data/ansible/state/initial_apt_upgrade"
   file:
