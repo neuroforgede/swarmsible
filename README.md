@@ -19,19 +19,3 @@ Currently tested and validated on Ubuntu 18.04/20.04.
 3. Ansible >= 2.8
 4. docker-setup role adapted from geerlingguy.docker
 5. docker-stack-deploy for secret rotation (https://github.com/neuroforgede/docker-stack-deploy)
-
-# Labeling Nodes
-
-```
-docker1:
-    ansible_ssh_host: "127.0.0.1"
-    ansible_ssh_port: "8101"
-    ansible_ssh_user: "vagrant"
-
-    ansible_host: 10.0.0.81
-    host_ip: "{{ ansible_host }}"
-
-
-    docker_swarm_labels:
-        traefik_ingress: '1'
-```
