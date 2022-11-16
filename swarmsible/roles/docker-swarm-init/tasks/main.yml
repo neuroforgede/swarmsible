@@ -8,11 +8,11 @@
     ignore_errors: true
 
   - set_fact:
-      __docker_swarm_ingress_network_opt: ""
+      __docker_swarm_ingress_network_opt: "--opt com.docker.network.driver.mtu={{ docker_swarm_ingress_network_mtu | default('1350') }}"
     when: not (docker_swarm_ingress_network_encrypt | default('True') | bool)
 
   - set_fact:
-      __docker_swarm_ingress_network_opt: "--opt encrypted"
+      __docker_swarm_ingress_network_opt: "--opt com.docker.network.driver.mtu={{ docker_swarm_ingress_network_mtu | default('1350') }} --opt encrypted"
     when: docker_swarm_ingress_network_encrypt | default('True') | bool
 
   - name: Initialize Docker Swarm
