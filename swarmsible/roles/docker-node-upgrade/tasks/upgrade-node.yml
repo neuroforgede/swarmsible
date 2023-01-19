@@ -1,5 +1,7 @@
 - name: "drain node {{ current_docker_node }}"
   shell: docker node update --availability drain '{{ hostvars[current_docker_node]['inventory_hostname'] }}'
+  retries: 10
+  delay: 10
   when: inventory_hostname == docker_swarm_main_manager
 
 - name: "wait until node {{ current_docker_node }} has drained"
@@ -35,4 +37,6 @@
 
 - name: "set node {{ current_docker_node }} active"
   shell: docker node update --availability active '{{ hostvars[current_docker_node]['inventory_hostname'] }}'
+  retries: 10
+  delay: 10
   when: inventory_hostname == docker_swarm_main_manager
