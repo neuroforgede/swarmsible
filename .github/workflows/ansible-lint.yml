@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 
-name: "Lint"
+name: "Ansible"
 
 on:  # yamllint disable-line rule:truthy
     pull_request: null
@@ -26,5 +26,5 @@ jobs:
             name: "Checkout repository"
             uses: "actions/checkout@v3"
         -
-            name: "Search for misspellings"
-            uses: "ansible/ansible-lint@v6"
+            name: "Search for improvements"
+            uses: "ansible/ansible-lint-action@v6"
