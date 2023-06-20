@@ -1,0 +1,9 @@
+---
+
+# https://ansible.readthedocs.io/projects/lint/configuring/
+
+profile: production
+exclude_paths:
+    - .github/
+enable_list:
+    - yaml
