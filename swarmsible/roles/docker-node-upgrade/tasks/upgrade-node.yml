@@ -36,7 +36,7 @@
   when: inventory_hostname == current_docker_node
 
 - name: "set node {{ current_docker_node }} active"
-  shell: docker node update --availability active '{{ hostvars[current_docker_node]['inventory_hostname'] }}'
+  shell: docker node update --availability active '{{ hostvars[current_docker_node]['inventory_hostname'] }}' || exit 1
   retries: 10
   delay: 10
   when: inventory_hostname == docker_swarm_main_manager
