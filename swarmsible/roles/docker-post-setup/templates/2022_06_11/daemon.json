@@ -7,5 +7,8 @@
         "syslog-facility": "daemon",
         "tag": "{{ inventory_hostname }}|{{ '{{' }}.Name{{ '}}' }}"
     },
-    "metrics-addr" : "0.0.0.0:9323"
+    "metrics-addr" : "0.0.0.0:9323",
+    "node-generic-resources": [
+        "hetzner-volumes={{ docker_swarm_generic_resource_hetzner_volumes | default(16) }}"
+    ]
 }

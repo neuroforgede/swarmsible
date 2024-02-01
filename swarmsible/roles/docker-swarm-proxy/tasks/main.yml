@@ -1,0 +1,15 @@
+- name: Make sure click is installed
+  pip:
+    name: click
+
+- name: Ensure that ~/.docker/cli-plugins/ exists
+  file:
+    path: "~/.docker/cli-plugins"
+    state: directory
+
+- name: Download docker_swarm_proxy.py
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/neuroforgede/docker-swarm-proxy/master/docker_swarm_proxy.py
+    dest: ~/.docker/cli-plugins/docker-swarmproxy
+    mode: '0770'
+    force: true
