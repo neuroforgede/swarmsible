@@ -14,7 +14,7 @@
 
     - name: "copy daemon.json to /etc/docker/daemon.json"
       template:
-        src: "2022_06_11/daemon.json"
+        src: "2022_06_11/daemon.json.j2"
         dest: "/etc/docker/daemon.json"
         mode: 0600
         owner: root

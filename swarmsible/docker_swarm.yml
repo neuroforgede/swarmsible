@@ -27,7 +27,6 @@
     - docker-swarm-hetzner-init-variables
     - docker-swarm-init
     - docker-swarm-add-manager
-    - docker-swarm-proxy
 
 - hosts: docker_swarm_worker
   become: true
