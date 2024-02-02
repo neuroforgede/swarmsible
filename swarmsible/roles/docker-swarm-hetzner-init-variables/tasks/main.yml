@@ -1,15 +1,37 @@
-- name: "initialize inventory variables"
-  when: "docker_swarm_initialize_variables_from_hetzner | default('False') | bool"
+- name: "initialize inventory variables [default]"
+  when: (docker_swarm_initialize_variables_from_hetzner | default('False') | bool) and (not docker_swarm_custom_private_network | default('False') | bool)
   block:
   - set_fact:
       group_index: "{{ inventory_hostname | regex_search('[a-zA-Z]-0*([0-9]*)$', '\\1') | first }}"
 
   - set_fact:
-      docker_swarm_advertise_addr: "{{ docker_swarm_default_network_prefix | default(192.168.1) }}.{{ (group_index | int) + 65 }}" 
+      docker_swarm_advertise_addr: "192.168.1.{{ (group_index | int) + 1 }}" 
     when: "'docker_swarm_manager' in group_names"
 
   - set_fact:
-      docker_swarm_advertise_addr: "{{ docker_swarm_default_network_prefix | default(192.168.1) }}.{{ (group_index | int) + 129 }}" 
+      docker_swarm_advertise_addr: "192.168.2.{{ (group_index | int) + 1 }}" 
+    when: "'docker_swarm_worker' in group_names"
+
+  - set_fact:
+      host_ip: "{{ ansible_host }}"
+
+  - set_fact:
+      docker_swarm_labels:
+        host: "{{ inventory_hostname }}"
+        hetzner_location: "{{ location }}"
+
+- name: "initialize inventory variables [custom private network]"
+  when: (docker_swarm_initialize_variables_from_hetzner | default('False') | bool) and (docker_swarm_custom_private_network | default('False') | bool)
+  block:
+  - set_fact:
+      group_index: "{{ inventory_hostname | regex_search('[a-zA-Z]-0*([0-9]*)$', '\\1') | first }}"
+
+  - set_fact:
+      docker_swarm_advertise_addr: "{{ docker_swarm_custom_network_prefix | default(192.168.1) }}.{{ (group_index | int) + 65 }}" 
+    when: "'docker_swarm_manager' in group_names"
+
+  - set_fact:
+      docker_swarm_advertise_addr: "{{ docker_swarm_custom_network_prefix | default(192.168.1) }}.{{ (group_index | int) + 129 }}" 
     when: "'docker_swarm_worker' in group_names"
 
   - set_fact:
