@@ -1,4 +1,7 @@
 ---
+- fail:
+    msg: "Either docker_pinned_package or containerd_pinned_package are not properly pinned. Improper pinning no longer accepted"
+  when: (docker_pinned_package is not defined) or (docker_pinned_package == '*') or (containerd_pinned_package is not defined) or (containerd_pinned_package == '*')
 
 - name: "pin docker version to {{ docker_pinned_package }}"
   template:
@@ -12,6 +15,14 @@
   template:
     src: "apt-preference-docker-cli.j2"
     dest: "/etc/apt/preferences.d/docker-cli"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: "pin docker ce rootless extras version to {{ docker_pinned_package }}"
+  template:
+    src: "apt-preference-docker-ce-rootless-extras.j2"
+    dest: "/etc/apt/preferences.d/docker-ce-rootless-extras"
     mode: 0644
     owner: root
     group: root
