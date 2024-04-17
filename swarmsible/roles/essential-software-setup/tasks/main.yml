@@ -39,7 +39,11 @@
         to: 0.0.0.0/0
         port: "22"
       when: not (ssh_only_management_nodes | default('False') | bool)
-        
+      register: firewall
+      until: firewall is succeeded
+      retries: 10
+      delay: 3
+
     - name: Allow ssh ipv6 connections via loopback
       ufw:
         rule: allow
@@ -47,6 +51,10 @@
         from: ::1
         to: ::1
         port: "22"
+      register: firewall
+      until: firewall is succeeded
+      retries: 10
+      delay: 3
 
     - name: Allow ssh ipv6 connections to ipv6 floating ip if configured
       ufw:
@@ -55,6 +63,10 @@
         to: "{{ floating_ipv6 }}"
         port: "22"
       when: floating_ipv6 is defined
+      register: firewall
+      until: firewall is succeeded
+      retries: 10
+      delay: 3
 
     - name: Allow connections to SSH from management node ips
       ufw:
@@ -66,6 +78,10 @@
         comment: "allow management node"
       with_items: "{{ management_node_ips | default([]) }}"
       when: ssh_only_management_nodes | default('False') | bool
+      register: firewall
+      until: firewall is succeeded
+      retries: 10
+      delay: 3
 
     - name: "delete port 22 allow all rules for ipv4 if they exist"
       ufw:
@@ -75,6 +91,10 @@
         to: 0.0.0.0/0
         port: 22
       when: ssh_only_management_nodes | default('False') | bool
+      register: firewall
+      until: firewall is succeeded
+      retries: 10
+      delay: 3
 
     - name: Enable ufw
       ufw:
