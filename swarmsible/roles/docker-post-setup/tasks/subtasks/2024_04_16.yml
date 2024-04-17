@@ -1,0 +1,37 @@
+---
+- name: check if docker_changes_2024_04_16 were already applied
+  stat:
+    path: "/data/ansible/state/docker/changes/2024_04_16"
+  register: "docker_changes_2024_04_16"
+
+- name: set docker_changes_2024_04_16_val
+  set_fact:
+    docker_changes_2024_04_16_val: "{{ docker_changes_2024_04_16.stat.exists }}"
+
+- name: set up docker changes for 2024_04_16
+  when: not docker_changes_2024_04_16_val|bool
+  block:
+
+    - name: "copy daemon.json to /etc/docker/daemon.json"
+      template:
+        src: "2024_04_16/daemon.json.j2"
+        dest: "/etc/docker/daemon.json"
+        mode: 0600
+        owner: root
+        group: root
+
+    - name: "restart docker"
+      service:
+        name: docker
+        state: restarted
+        enabled: yes
+      retries: 10
+      delay: 10
+      register: result
+      until: result is succeeded
+
+- name: "touch /data/ansible/state/docker/changes/2024_04_16"
+  file:
+    path: "/data/ansible/state/docker/changes/2024_04_16"
+    state: touch
+    mode: "u=rw,g=r,o=r"

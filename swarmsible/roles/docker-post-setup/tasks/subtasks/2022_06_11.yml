@@ -40,6 +40,10 @@
     from: 172.18.0.0/16
     to: 0.0.0.0/0
     port: "9323"
+  register: firewall
+  until: firewall is succeeded
+  retries: 10
+  delay: 3
 
 - name: "touch /data/ansible/state/docker/changes/2022_06_11"
   file:
