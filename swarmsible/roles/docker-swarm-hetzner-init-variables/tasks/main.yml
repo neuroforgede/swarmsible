@@ -31,7 +31,7 @@
     when: "'docker_swarm_manager' in group_names"
 
   - set_fact:
-      docker_swarm_advertise_addr: "{{ docker_swarm_custom_private_network | ipsubnet(26, 1) | ipaddr((group_index | int) + 1) | ipaddr('address') }}"
+      docker_swarm_advertise_addr: "{{ docker_swarm_custom_private_network | ipsubnet(26, 2) | ipaddr((group_index | int) + 1) | ipaddr('address') }}"
     when: "'docker_swarm_worker' in group_names"
 
   - set_fact:
