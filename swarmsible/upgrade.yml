@@ -5,7 +5,25 @@
     ansible_user: "{{ global_ansible_user | default('ansible') }}"
   become: True
   gather_facts: true
+  tasks:
+  - name: "Pin {{ item }} version"
+    dpkg_selections:
+      name: "{{ item }}"
+      selection: hold
+    with_items:
+      - containerd.io
+      - docker-ce-cli
+      - docker-ce
+      - docker-ce-rootless-extras
+      - docker-scan-plugin
+
+- hosts: all
+  vars:
+    ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
+    ansible_user: "{{ global_ansible_user | default('ansible') }}"
+  become: True
+  gather_facts: true
   roles:
-    - docker-pre-setup
     - docker-swarm-hetzner-init-variables
+    - docker-pre-setup
     - docker-node-upgrade
